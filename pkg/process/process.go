@@ -3,6 +3,7 @@ package process
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"regexp"
 )
 
@@ -18,6 +19,7 @@ type Task struct {
 type PatternMatch struct {
 	Pattern         string
 	Match           string
+	MatchPath       string
 	CapturedMatches map[string]string
 }
 
@@ -32,13 +34,12 @@ func Config(_ context.Context, folder string, exp *regexp.Regexp) ([]PatternMatc
 		var match PatternMatch
 		match.CapturedMatches = make(map[string]string)
 		match.Pattern = exp.String()
-		if !item.IsDir() {
-			continue
-		}
+
 		if !exp.MatchString(item.Name()) {
 			continue
 		}
 		match.Match = item.Name()
+		match.MatchPath = filepath.Join(folder, item.Name())
 
 		submatches := exp.FindStringSubmatch(item.Name())
 		groupNames := exp.SubexpNames()
