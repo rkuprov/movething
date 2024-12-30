@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"regexp"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -37,12 +36,13 @@ func (c *Cmd) Run(ctx context.Context) error {
 		c.Destination = defaultDestination
 	}
 
-	exp, err := regexp.Compile(c.Pattern)
-	if err != nil {
-		return err
-	}
-
-	toCopy, err := process.Config(ctx, c.Root, exp)
+	toCopy, err := process.Config(ctx, process.Task{
+		Name:                 "",
+		SearchDirectory:      c.Root,
+		SearchPattern:        c.Pattern,
+		DestinationDirectory: c.Destination,
+		RenamePattern:        "",
+	})
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func (c *Cmd) Run(ctx context.Context) error {
 	return nil
 }
 
-func copyItem(ctx context.Context, item process.PatternMatch, from, to string) error {
+func copyItem(ctx context.Context, item process.Matched, from, to string) error {
 	f, err := os.Stat(item.MatchPath)
 	if err != nil {
 		return err
