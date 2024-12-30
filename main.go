@@ -5,12 +5,12 @@ import (
 
 	"github.com/alecthomas/kong"
 
-	copycmd "movething/pkg/copy"
 	"movething/pkg/logging"
+	"movething/pkg/move"
 )
 
 type Commands struct {
-	Copy copycmd.Cmd `cmd:"" help:"Command to execute" required:""`
+	Copy move.Cmd `cmd:"" help:"Command to execute" required:""`
 }
 
 func main() {

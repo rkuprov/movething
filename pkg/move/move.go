@@ -1,4 +1,4 @@
-package copycmd
+package move
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 type Cmd struct {
 	Pattern     string `arg:""`
 	Root        string `alias:"in" help:"Root directory to search for files"`
-	Destination string `alias:"dest" help:"Destination directory to copy files to"`
+	Destination string `alias:"dest" help:"Destination directory to move files to"`
 	LogLevel    string `alias:"log" default:"info" enum:"debug,info,error" help:"Log level to use"`
 }
 
