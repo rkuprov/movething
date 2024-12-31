@@ -5,6 +5,10 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+
+	"go.uber.org/zap"
+
+	"movething/pkg/logging"
 )
 
 type Task struct {
@@ -41,7 +45,8 @@ func Config(ctx context.Context, task Task) ([]Matched, error) {
 			continue
 		}
 		if item.IsDir() {
-			scanned, err := scanDirectory(ctx, filepath.Join(task.SearchDirectory, item.Name()))
+			logging.Debug(ctx, "found directory", zap.String("dir", item.Name()))
+			scanned, err := scanDirectory(ctx, filepath.Join(task.SearchDirectory, item.Name()), filepath.Join(task.DestinationDirectory, item.Name()), exp)
 			if err != nil {
 				return nil, err
 			}
@@ -63,8 +68,41 @@ func Config(ctx context.Context, task Task) ([]Matched, error) {
 	return out, err
 }
 
-func scanDirectory(ctx context.Context, dir string) ([]Matched, error) {
-	return nil, nil
+var acceptAll = regexp.MustCompile("^.*$")
+
+func scanDirectory(ctx context.Context, current, to string, exp *regexp.Regexp) ([]Matched, error) {
+	logging.Debug(ctx, "scanning directory", zap.String("dir", current))
+	out := make([]Matched, 0)
+	items, err := os.ReadDir(current)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range items {
+		var scanned []Matched
+		switch {
+		case item.IsDir():
+			scanned, err = scanDirectory(ctx,
+				filepath.Join(current, item.Name()),
+				filepath.Join(to, item.Name()),
+				exp)
+			if err != nil {
+				return nil, err
+			}
+
+		default:
+			f, err := prepareFile(ctx, current, to, item, acceptAll)
+			if err != nil {
+				return nil, err
+			}
+			logging.Debug(ctx, "found file", zap.String("file", f.Match))
+			scanned = append(scanned, f)
+		}
+
+		out = append(out, scanned...)
+	}
+
+	return out, nil
 }
 
 func prepareFile(_ context.Context, searchDir, destinationDir string, file os.DirEntry, exp *regexp.Regexp) (Matched, error) {
