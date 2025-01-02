@@ -140,7 +140,7 @@ func Test_processTask(t *testing.T) {
 			require.NoError(t, os.WriteFile(filepath.Join(dir, path), []byte(fmt.Sprintf("%d.txt", i)), 0644))
 		}
 
-		got, err := Tasks(ctx, Task{
+		got, err := GetMatches(ctx, Task{
 			Name:                 tt.testName,
 			SearchDirectory:      dir,
 			SearchPattern:        tt.exp,
