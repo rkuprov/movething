@@ -37,7 +37,7 @@ func (c *Cmd) Run(ctx context.Context) error {
 		c.Destination = defaultDestination
 	}
 
-	toCopy, err := process.Config(ctx, process.Task{
+	toCopy, err := process.Tasks(ctx, process.Task{
 		Name:                 "",
 		SearchDirectory:      c.Root,
 		SearchPattern:        c.Pattern,

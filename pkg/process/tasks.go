@@ -28,7 +28,7 @@ type Matched struct {
 	DestinationPath string
 }
 
-func Config(ctx context.Context, task Task) ([]Matched, error) {
+func Tasks(ctx context.Context, task Task) ([]Matched, error) {
 	items, err := os.ReadDir(task.SearchDirectory)
 	if err != nil {
 		return nil, err
